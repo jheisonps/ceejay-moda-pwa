@@ -26,7 +26,7 @@ const TAREFAS_PADRAO=[
   {id:'t04',cat:'Fase 2: Clientes',nome:'👥 Primeiro Cliente',desc:'Cadastrar o 1º cliente novo na aba Clientes do app.',bonus:0.13},
   {id:'t05',cat:'Fase 2: Clientes',nome:'👥 Segundo Cliente',desc:'Cadastrar o 2º cliente novo na aba Clientes do app.',bonus:0.13},
   {id:'t06',cat:'Fase 2: Clientes',nome:'👥 Terceiro Cliente',desc:'Cadastrar o 3º cliente novo na aba Clientes do app.',bonus:0.13},
-  {id:'t07',cat:'Fase 2: Clientes',nome:'👥 Cliente Extra',desc:'Cada cliente cadastrado além dos 3 primeiros vale +R$ 0,13. Para marcar mais de uma vez: marque, desmarque e marque novamente.',bonus:0.13,repetivel:true},
+  {id:'t07',cat:'Fase 2: Clientes',nome:'👥 Cliente Extra',desc:'Cada cliente cadastrado além dos 3 primeiros vale +R$ 0,13. Toque em "+1 ocorrência" toda vez que cadastrar um cliente novo — pode repetir quantas vezes quiser no dia.',bonus:0.13,repetivel:true},
   // Fase 3: Stories no Instagram
   {id:'t08',cat:'Fase 3: Instagram',nome:'📸 Peça de Destaque',desc:'Story de um produto com preço e tamanhos visíveis.',bonus:0.05},
   {id:'t09',cat:'Fase 3: Instagram',nome:'📸 Próximo Round',desc:'Postar outra peça com intervalo mínimo de 40 minutos da anterior.',bonus:0.05},
@@ -1254,6 +1254,34 @@ window.onTarDateChange=function(){
   renderTarefas();
 };
 
+// ── UI: cartão de boas-vindas / toggles de período e progresso ─────────────────
+window.fecharTarWelcome=function(){
+  localStorage.setItem('cj_tar_welcome_ok','1');
+  const el=$('tar-welcome');if(el)el.style.display='none';
+  playClick();
+};
+function checkTarWelcome(){
+  const el=$('tar-welcome');if(!el)return;
+  el.style.display=localStorage.getItem('cj_tar_welcome_ok')?'none':'block';
+}
+window.toggleTarPeriodo=function(){
+  const row=$('tar-date-row');if(!row)return;
+  row.style.display=row.style.display==='none'?'flex':'none';
+  playClick();
+};
+window.toggleTarProgresso=function(){
+  const panel=$('tar-xp-panel');if(!panel)return;
+  panel.style.display=panel.style.display==='none'?'block':'none';
+  playClick();
+};
+
+// ── Fases: controle manual de abrir/fechar (sobrepõe a fase "atual" automática) ─
+let tarOpenPhase=null;
+window.toggleTarPhase=function(cat){
+  tarOpenPhase=(tarOpenPhase===cat)?null:cat;
+  renderTarefas();playClick();
+};
+
 window.setTarFilter=function(f){
   tarFilter=f;
   ['all','pending','done'].forEach(x=>$('tf-'+x).classList.toggle('active',x===f));
@@ -1402,10 +1430,19 @@ window.renderTarefas=function(){
       </div>`;
   }
 
+  checkTarWelcome();
+
   const wrap=$('tar-list-wrap');
   wrap.innerHTML='';
 
+  // Fase "atual" = primeira fase com alguma tarefa não-repetível pendente
+  function isCatComplete(cat){
+    return TAREFAS_PADRAO.filter(t=>t.cat===cat).every(t=>t.repetivel?true:!!done[t.id]);
+  }
+  const firstIncomplete=cats.find(c=>!isCatComplete(c));
+
   cats.forEach(cat=>{
+    const catTasksAll=TAREFAS_PADRAO.filter(t=>t.cat===cat);
     const catTasks=TAREFAS_PADRAO.filter(t=>{
       if(tarFilter==='done'){
         if(t.repetivel)return t.cat===cat&&(rep[t.id]||0)>0;
@@ -1418,29 +1455,45 @@ window.renderTarefas=function(){
       return t.cat===cat;
     });
     if(!catTasks.length)return;
-    const sec=document.createElement('div');
-    sec.className='tar-section';
+
+    const catDoneCount=catTasksAll.filter(t=>t.repetivel?(rep[t.id]||0)>0:!!done[t.id]).length;
+    const catComplete=isCatComplete(cat);
+    const isCurrent=cat===firstIncomplete;
+    const isOpen=tarOpenPhase?tarOpenPhase===cat:(range?true:isCurrent);
     const catIco={'Fase 1: Abertura':'🏢','Fase 2: Clientes':'👥','Fase 3: Instagram':'📸','Fase 4: Vídeos':'🎬','Fase 5: Resultados':'🚀'}[cat]||'📌';
-    sec.textContent=catIco+' '+cat;
-    wrap.appendChild(sec);
+
+    const phaseDiv=document.createElement('div');
+    phaseDiv.className='tar-phase'+(isCurrent?' current':'')+(catComplete?' complete':'')+(isOpen?' open':'');
+    phaseDiv.innerHTML=`
+      <div class="tar-phase-head" onclick="toggleTarPhase('${cat}')">
+        <span>${catIco}</span>
+        <span class="tar-phase-title">${cat}${isCurrent?' · agora':''}</span>
+        <span class="tar-phase-badge">${catComplete?'✓ completa':catDoneCount+'/'+catTasksAll.length}</span>
+        <span class="tar-phase-chevron">▾</span>
+      </div>
+      <div class="tar-phase-body"></div>`;
+    wrap.appendChild(phaseDiv);
+    const body=phaseDiv.querySelector('.tar-phase-body');
+
     catTasks.forEach(t=>{
       const repCnt=rep[t.id]||0;
       const isDone=t.repetivel?(repCnt>0):!!done[t.id];
       const div=document.createElement('div');
-      div.className='tar-card'+(isDone?' done':'');
+      div.className='tar-card'+(isDone?' done':'')+(t.automatico?' tar-card-form':'');
       div.id='tarcard-'+t.id;
       const repTag=t.repetivel&&repCnt>0
         ?`<span class="tar-badge tar-badge-rep">🔁 ×${repCnt} = ${fmt(t.bonus*repCnt)}</span>`
         :t.repetivel?'<span class="tar-badge tar-badge-rep">🔁 Repetível</span>':'';
-      const badges=[
-        repTag,
+      // No card fechado mostramos só o essencial; o resto aparece ao abrir
+      const badgesCollapsed=[repTag,t.automatico?'<span class="tar-badge tar-badge-auto">📝 Preencher</span>':''].filter(Boolean).join('');
+      const badgesExtra=[
         t.upload==='video'?'<span class="tar-badge tar-badge-upload">📹 Vídeo</span>':'',
         t.upload==='foto'?'<span class="tar-badge tar-badge-upload">📷 Foto</span>':'',
         t.especial?'<span class="tar-badge tar-badge-esp">⭐ Especial</span>':'',
-        t.automatico?'<span class="tar-badge tar-badge-auto">⚡ Auto</span>':'',
         t.whatsapp?'<span class="tar-badge tar-badge-wpp">💬 WhatsApp</span>':'',
         `<span class="tar-badge tar-badge-xp">⭐ ${TAR_XP_POR_ACAO} XP</span>`,
       ].filter(Boolean).join('');
+      const badges=badgesCollapsed+badgesExtra;
       const btnHtml=t.repetivel
         ?`<div style="display:flex;flex-direction:column;gap:6px">
             <button class="tar-confirm-btn" onclick="marcarTarefa('${t.id}')">✅ +1 ocorrência (+${fmt(t.bonus)} · +${TAR_XP_POR_ACAO} XP)${repCnt>0?' — já: '+repCnt+'×':''}</button>
@@ -1491,7 +1544,7 @@ window.renderTarefas=function(){
           <span class="tar-bonus-tag">${t.automatico&&isDone?fmt((placarBonusData[getTarKey()]||{})[t.id]||t.bonus):t.repetivel&&repCnt>0?fmt(t.bonus*repCnt):'+'+fmt(t.bonus)}</span>
         </div>
         ${proofHtml}`;
-      wrap.appendChild(div);
+      body.appendChild(div);
     });
   });
 

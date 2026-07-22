@@ -154,21 +154,30 @@
       <div class="tar-header-top">
         <span class="tar-title">⭐ Tarefas do Dia</span>
         <div class="tar-bonus-box">
-          <span class="tar-bonus-lbl">Bônus</span>
+          <span class="tar-bonus-lbl">Ganho hoje</span>
           <span class="tar-bonus-val" id="tar-bonus-total">R$ 0,00</span>
         </div>
       </div>
-      <div class="tar-date-row">
-        <span class="tar-date-lbl">📅 Período:</span>
+      <div class="tar-progress-wrap"><div class="tar-progress-fill" id="tar-progress" style="width:0%"></div></div>
+      <div class="tar-progress-lbl" id="tar-progress-lbl">0 de 0 tarefas</div>
+      <div class="tar-toolbar-row">
+        <button class="tar-toolbar-link" onclick="toggleTarPeriodo()">📅 Ver outro período</button>
+        <button class="tar-toolbar-link" onclick="toggleTarProgresso()">🏆 Meu progresso</button>
+      </div>
+      <div class="tar-date-row" id="tar-date-row" style="display:none">
+        <span class="tar-date-lbl">Período:</span>
         <div class="tar-date-range" style="flex:1">
           <input class="tar-date-inp-sm" type="date" id="tar-date" oninput="onTarDateChange()">
           <span class="tar-date-range-sep">→</span>
           <input class="tar-date-inp-sm" type="date" id="tar-date-end" oninput="onTarDateChange()">
         </div>
       </div>
-      <div class="tar-progress-wrap"><div class="tar-progress-fill" id="tar-progress" style="width:0%"></div></div>
-      <div class="tar-progress-lbl" id="tar-progress-lbl">0 de 0 tarefas</div>
-      <div id="tar-xp-panel" class="tar-xp-panel"></div>
+      <div id="tar-xp-panel" class="tar-xp-panel" style="display:none"></div>
+    </div>
+    <div class="tar-welcome" id="tar-welcome" style="display:none">
+      <div class="tar-welcome-title">👋 Como funciona</div>
+      <div class="tar-welcome-txt">Cada tarefa concluída aqui vira <b>bônus em dinheiro real</b>, somado no seu resumo do dia. É pra você ter sempre o que fazer, mesmo quando não tem cliente na loja. As tarefas seguem a ordem do seu dia — comece pela fase aberta abaixo.</div>
+      <button class="tar-welcome-btn" onclick="fecharTarWelcome()">Entendi, vamos lá 👍</button>
     </div>
     <div class="tar-filter-row">
       <button class="tar-filter-btn active" id="tf-all" onclick="setTarFilter('all')">Todas</button>

@@ -416,6 +416,39 @@ body{display:flex;flex-direction:column;background:var(--bg)}
 .tar-share-btn:active{opacity:.85}
 .tar-share-ig{background:linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045)}
 
+/* ── Toolbar links (período / progresso) ─────────────────────────────────── */
+.tar-toolbar-row{display:flex;gap:14px;margin-top:10px}
+.tar-toolbar-link{background:none;border:none;padding:0;font-size:11px;font-weight:700;color:var(--gold2);cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+.tar-toolbar-link:active{opacity:.7}
+
+/* ── Cartão de boas-vindas ────────────────────────────────────────────────── */
+.tar-welcome{background:linear-gradient(135deg,rgba(201,168,76,.14),rgba(201,168,76,.05));border:1.5px solid rgba(201,168,76,.35);border-radius:12px;margin:10px;padding:13px}
+.tar-welcome-title{font-size:13px;font-weight:800;color:var(--gold3);margin-bottom:5px}
+.tar-welcome-txt{font-size:12px;color:var(--text2,var(--text));line-height:1.5;margin-bottom:10px}
+.tar-welcome-btn{width:100%;padding:9px;border-radius:9px;background:var(--gold3);color:var(--white);border:none;font-size:12px;font-weight:800;cursor:pointer}
+.tar-welcome-btn:active{opacity:.85}
+
+/* ── Fases colapsáveis ────────────────────────────────────────────────────── */
+.tar-phase{margin:0 10px 10px;border-radius:12px;overflow:hidden;border:1.5px solid var(--bg3);background:var(--white)}
+.tar-phase.current{border-color:rgba(201,168,76,.5)}
+.tar-phase.complete{border-color:rgba(39,174,96,.35)}
+.tar-phase-head{display:flex;align-items:center;gap:8px;padding:11px 12px;cursor:pointer;background:var(--bg2)}
+.tar-phase.current .tar-phase-head{background:rgba(201,168,76,.12)}
+.tar-phase.complete .tar-phase-head{background:rgba(39,174,96,.08)}
+.tar-phase-title{flex:1;font-size:12px;font-weight:800;color:var(--text);letter-spacing:.3px}
+.tar-phase-badge{font-size:10px;font-weight:700;color:var(--text3);background:var(--white);border-radius:20px;padding:2px 9px}
+.tar-phase.complete .tar-phase-badge{color:var(--green);background:rgba(39,174,96,.12)}
+.tar-phase-chevron{font-size:10px;color:var(--text3);transition:transform .2s}
+.tar-phase.open .tar-phase-chevron{transform:rotate(180deg)}
+.tar-phase-body{display:none;padding-top:4px}
+.tar-phase.open .tar-phase-body{display:block}
+.tar-phase .tar-card{margin:0 10px 8px}
+.tar-phase .tar-card:first-child{margin-top:8px}
+
+/* ── Destaque para tarefa "automática" (placar) ──────────────────────────── */
+.tar-card.tar-card-form{border-color:rgba(41,128,185,.35);background:rgba(41,128,185,.04)}
+.tar-card-form-tag{display:inline-flex;align-items:center;gap:4px;font-size:9px;font-weight:800;color:#1a6fa8;background:rgba(41,128,185,.12);border-radius:5px;padding:2px 7px;margin-bottom:4px}
+
 /* ══ PLACAR SEGUIDORES ══ */
 .placar-wrap{padding:10px 0 4px;display:flex;flex-direction:column;gap:8px}
 .placar-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
