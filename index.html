@@ -34,6 +34,11 @@
 <div id="sync-dot"></div>
 <button id="btn-ajuda" onclick="abrirAjuda()">?</button>
 
+<!-- ═══ BOTÃO INSTALAR APP ═══ -->
+<button id="btn-instalar-app" class="btn-instalar-app" style="display:none" onclick="handleInstalarApp()">
+  📲 Instalar App
+</button>
+
 <div id="header">
   <div id="hlogo" onclick="goHome()">
     <div id="hlogo-mark"><img id="hlogo-img" src="" alt="CJ"></div>
@@ -409,6 +414,30 @@
   </div>
 </div>
 
+<!-- ═══ MODAL INSTALAR (iOS) ═══ -->
+<div class="overlay" id="ios-install-ov">
+  <div class="sheet">
+    <div class="sh-handle"></div>
+    <div class="sh-title">📲 Instalar o app no iPhone</div>
+    <div class="ios-install-body">
+      <div class="ios-install-step">
+        <span class="ios-install-num">1</span>
+        <span>Toque no botão <b>Compartilhar</b> <span class="ios-share-ico">⬆️</span> na barra do Safari (embaixo, no meio da tela)</span>
+      </div>
+      <div class="ios-install-step">
+        <span class="ios-install-num">2</span>
+        <span>Deslize e toque em <b>"Adicionar à Tela de Início"</b> ➕</span>
+      </div>
+      <div class="ios-install-step">
+        <span class="ios-install-num">3</span>
+        <span>Toque em <b>"Adicionar"</b> no canto superior direito</span>
+      </div>
+      <div class="ios-install-note">✅ Pronto! O ícone do Cee Jay vai aparecer na sua tela inicial, como um app de verdade.</div>
+    </div>
+    <button class="sh-btn sh-cancel" onclick="fecharOv('ios-install-ov')">Entendi</button>
+  </div>
+</div>
+
 <div id="toast"></div>
 
 <!-- ═══ LIGHTBOX FOTO ═══ -->
@@ -519,6 +548,55 @@ if ('serviceWorker' in navigator) {
   });
 }
 window.addEventListener('online', ()=>window.dispatchEvent(new Event('sync-pending')));
+
+// ═══ INSTALAR APP (Android/iOS) ═══
+let deferredInstallPrompt=null;
+
+function isStandalone(){
+  return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone===true;
+}
+function isIOS(){
+  return /iphone|ipad|ipod/i.test(window.navigator.userAgent) ||
+    (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1);
+}
+function updateInstallBtnVisibility(){
+  const btn=document.getElementById('btn-instalar-app');
+  if(!btn)return;
+  if(isStandalone()){btn.style.display='none';return;}
+  if(deferredInstallPrompt || isIOS()){btn.style.display='flex';}
+  else{btn.style.display='none';}
+}
+
+window.addEventListener('beforeinstallprompt',(e)=>{
+  e.preventDefault();
+  deferredInstallPrompt=e;
+  updateInstallBtnVisibility();
+});
+
+window.handleInstalarApp=async function(){
+  if(typeof playClick==='function')playClick();
+  if(deferredInstallPrompt){
+    deferredInstallPrompt.prompt();
+    const {outcome}=await deferredInstallPrompt.userChoice;
+    deferredInstallPrompt=null;
+    updateInstallBtnVisibility();
+    return;
+  }
+  if(isIOS()){
+    document.getElementById('ios-install-ov').classList.add('open');
+    return;
+  }
+  // Fallback: navegador não suporta instalação automática
+  if(typeof toast==='function')toast('Use o menu do navegador (⋮) → "Instalar app" ou "Adicionar à tela inicial".',false);
+};
+
+window.addEventListener('appinstalled',()=>{
+  deferredInstallPrompt=null;
+  updateInstallBtnVisibility();
+  if(typeof toast==='function')toast('✅ App instalado com sucesso!');
+});
+
+updateInstallBtnVisibility();
 </script>
 
 </body>
