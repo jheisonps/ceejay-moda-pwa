@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#E8E8E8">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Cee Jay">
+<title>Cee Jay Moda</title>
+<link rel="stylesheet" href="styles.css">
+
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+
+</head>
+<body>
+
+<!-- ═══ MODAL CONFIRM ═══ -->
+<div id="modal-overlay" class="modal-overlay" style="display:none" onclick="if(event.target===this)fecharModal()">
+  <div class="modal-box">
+    <div class="modal-title" id="modal-title"></div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-btns" id="modal-btns"></div>
+  </div>
+</div>
+
+<div id="splash">
+  <div id="splash-bg"></div>
+  <div id="splash-bar-wrap"><div id="splash-bar"><div id="splash-fill"></div></div></div>
+</div>
+
+<div id="sync-dot"></div>
+<button id="btn-ajuda" onclick="abrirAjuda()">?</button>
+
+<div id="header">
+  <div id="hlogo" onclick="goHome()">
+    <div id="hlogo-mark"><img id="hlogo-img" src="" alt="CJ"></div>
+    <div><h1>Cee Jay</h1><p>Moda Masculina</p></div>
+  </div>
+</div>
+
+<div id="tabs">
+  <button class="tab-btn" onclick="switchTab('prod',this)">👔 Produtos</button>
+  <button class="tab-btn" onclick="switchTab('venda',this)">💰 Venda</button>
+  <button class="tab-btn" onclick="switchTab('tarefas',this)">⭐ Tarefas</button>
+  <button class="tab-btn" onclick="switchTab('resumo',this)">📊 Resumo</button>
+  <button class="tab-btn" onclick="switchTab('clientes',this)">👥 Clientes</button>
+  <button class="tab-btn" onclick="switchTab('cad',this)">➕ Cad.</button>
+</div>
+
+<div id="content">
+
+  <!-- ═══ HOME ═══ -->
+  <div class="pane active" id="pane-home">
+    <div id="home-bg"></div>
+    <div id="home-overlay"></div>
+    <div id="home-content">
+      <div id="home-logo-spacer"></div>
+      <div class="home-btns">
+        <button class="home-btn" onclick="navTo('prod')"><span class="hb-ico">👔</span><span class="hb-txt">Produtos</span></button>
+        <button class="home-btn" onclick="navTo('venda')"><span class="hb-ico">💰</span><span class="hb-txt">Vendas</span></button>
+        <button class="home-btn" onclick="navTo('tarefas')"><span class="hb-ico">⭐</span><span class="hb-txt">Tarefas do Dia</span></button>
+        <button class="home-btn" onclick="navTo('resumo')"><span class="hb-ico">📊</span><span class="hb-txt">Resumo do Dia</span></button>
+        <button class="home-btn" onclick="navTo('cad')"><span class="hb-ico">➕</span><span class="hb-txt">Cadastro de Produto</span></button>
+      </div>
+      <div class="home-footer">
+        <button class="home-share-btn" onclick="compartilharApp()">📲 Compartilhar App</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ PRODUTOS ═══ -->
+  <div class="pane" id="pane-prod">
+    <div class="top-bar">
+      <input class="search-inp" id="srch" type="search" placeholder="🔍 Buscar produto ou código..." oninput="renderProds()" autocomplete="off">
+      <div class="sort-row">
+        <span class="sort-lbl">Ordenar:</span>
+        <button class="sort-btn active" id="sort-cod" onclick="setSort('cod')">🔢 Código</button>
+        <button class="sort-btn" id="sort-az" onclick="setSort('az')">🔤 A–Z</button>
+      </div>
+      <div class="disc-row">
+        <label>Simular desconto:</label>
+        <input id="disc-global" type="number" min="0" max="100" placeholder="10" oninput="renderProds()">
+        <span>%</span>
+      </div>
+    </div>
+    <div class="pane-scroll">
+      <div class="prod-list" id="prod-list">
+        <div id="mig-banner" class="mig-banner" style="display:none">
+          <span class="mig-banner-txt">⚠️ Alguns produtos ainda têm comissão em <b>10%</b>. Clique para corrigir tudo para <b>15%</b> de uma vez.</span>
+          <button class="mig-banner-btn" onclick="migrarComissao()">Corrigir agora</button>
+        </div>
+        <div class="empty-st" id="prod-empty" style="display:none">
+          <div class="empty-ico">👔</div>
+          <div class="empty-txt">Nenhum produto cadastrado ainda.<br>Vá em Cadastro para adicionar.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ VENDA ═══ -->
+  <div class="pane" id="pane-venda">
+    <div class="pane-scroll">
+      <div class="venda-body">
+        <div class="sec-lbl">Identificação</div>
+        <div class="user-box">
+          <span class="user-box-lbl">Vendedor:</span>
+          <span class="user-name-display" id="user-name-display">—</span>
+          <button onclick="abrirConfig();playClick()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--gold);padding:4px">⚙️</button>
+        </div>
+        <!-- CLIENTE OPCIONAL -->
+        <div class="venda-cli-box">
+          <div class="venda-cli-row">
+            <span class="venda-cli-lbl">👤 Cliente:</span>
+            <div class="venda-cli-inp-wrap">
+              <input class="venda-cli-inp" id="venda-cli-inp" type="text" placeholder="Opcional — buscar cliente..." autocomplete="off" oninput="buscarCliVenda(this.value)">
+              <div class="ac-drop" id="venda-cli-drop" style="display:none"></div>
+            </div>
+            <button class="venda-cli-clear" id="venda-cli-clear" onclick="limparCliVenda()" style="display:none">×</button>
+          </div>
+          <div class="venda-cli-tag" id="venda-cli-tag" style="display:none"></div>
+        </div>
+        <div class="sec-lbl">Itens da venda</div>
+        <div id="vi-wrap"></div>
+        <div class="add-btn" onclick="addItem();playClick()">＋ Adicionar produto</div>
+      </div>
+      <div class="disc-box">
+        <div class="disc-box-row">
+          <label>Desconto na venda:</label>
+          <input id="disc-venda" type="number" min="0" max="100" placeholder="0" oninput="calcTotals()">
+          <span>%</span>
+        </div>
+        <div class="disc-preview" id="disc-preview" style="display:none">
+          <div class="dp-row"><span class="dp-lbl">Total c/ desconto:</span><span class="dp-val" id="dp-total">—</span></div>
+          <div class="dp-row"><span class="dp-lbl">Comissão (15%):</span><span class="dp-val" id="dp-com">—</span></div>
+          <div class="dp-row"><span class="dp-lbl">Líquido:</span><span class="dp-val" id="dp-liq">—</span></div>
+        </div>
+      </div>
+      <div class="totals-box">
+        <div class="tb-row"><span class="tb-lbl">Subtotal</span><span class="tb-val" id="tb-sub">R$ 0,00</span></div>
+        <div class="tb-row"><span class="tb-lbl">Comissão (15%)</span><span class="tb-val" id="tb-com">R$ 0,00</span></div>
+        <div class="tb-row tb-big"><span class="tb-lbl">Líquido</span><span class="tb-val" id="tb-liq">R$ 0,00</span></div>
+      </div>
+      <button class="btn-vender" onclick="finalizarVenda()">✅ REGISTRAR VENDA</button>
+      <button class="btn-hist" onclick="abrirHist();playClick()">📋 Histórico de vendas</button>
+    </div>
+  </div>
+
+  <!-- ═══ TAREFAS ═══ -->
+  <div class="pane" id="pane-tarefas">
+    <div class="tar-header">
+      <div class="tar-header-top">
+        <span class="tar-title">⭐ Tarefas do Dia</span>
+        <div class="tar-bonus-box">
+          <span class="tar-bonus-lbl">Ganho hoje</span>
+          <span class="tar-bonus-val" id="tar-bonus-total">R$ 0,00</span>
+        </div>
+      </div>
+      <div class="tar-progress-wrap"><div class="tar-progress-fill" id="tar-progress" style="width:0%"></div></div>
+      <div class="tar-progress-lbl" id="tar-progress-lbl">0 de 0 tarefas</div>
+      <div class="tar-toolbar-row">
+        <button class="tar-toolbar-link" onclick="toggleTarPeriodo()">📅 Ver outro período</button>
+        <button class="tar-toolbar-link" onclick="toggleTarProgresso()">🏆 Meu progresso</button>
+      </div>
+      <div class="tar-date-row" id="tar-date-row" style="display:none">
+        <span class="tar-date-lbl">Período:</span>
+        <div class="tar-date-range" style="flex:1">
+          <input class="tar-date-inp-sm" type="date" id="tar-date" oninput="onTarDateChange()">
+          <span class="tar-date-range-sep">→</span>
+          <input class="tar-date-inp-sm" type="date" id="tar-date-end" oninput="onTarDateChange()">
+        </div>
+      </div>
+      <div id="tar-xp-panel" class="tar-xp-panel" style="display:none"></div>
+    </div>
+    <div class="tar-welcome" id="tar-welcome" style="display:none">
+      <div class="tar-welcome-title">👋 Como funciona</div>
+      <div class="tar-welcome-txt">Cada tarefa concluída aqui vira <b>bônus em dinheiro real</b>, somado no seu resumo do dia. É pra você ter sempre o que fazer, mesmo quando não tem cliente na loja. As tarefas seguem a ordem do seu dia — comece pela fase aberta abaixo.</div>
+      <button class="tar-welcome-btn" onclick="fecharTarWelcome()">Entendi, vamos lá 👍</button>
+    </div>
+    <div class="tar-filter-row">
+      <button class="tar-filter-btn active" id="tf-all" onclick="setTarFilter('all')">Todas</button>
+      <button class="tar-filter-btn" id="tf-pending" onclick="setTarFilter('pending')">Pendentes</button>
+      <button class="tar-filter-btn" id="tf-done" onclick="setTarFilter('done')">Concluídas</button>
+    </div>
+    <div class="pane-scroll">
+      <div id="tar-surprise-wrap"></div>
+      <div id="tar-list-wrap"></div>
+      <div id="tar-summary-wrap"></div>
+      <div class="tar-share-wrap">
+        <button class="tar-share-btn" onclick="compartilharTarefas('whatsapp')">💬 Enviar via WhatsApp</button>
+        <button class="tar-share-btn tar-share-ig" style="margin-top:8px" onclick="compartilharTarefas('instagram')">📸 Copiar para Instagram</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ RESUMO DO DIA ═══ -->
+  <div class="pane" id="pane-resumo">
+    <div class="res-header">
+      <div class="res-header-top">
+        <span class="res-title">📊 Resumo</span>
+        <div style="display:flex;gap:6px">
+          <input class="res-date-inp" type="date" id="res-date-from" oninput="renderResumo()">
+          <span style="color:var(--silver);font-size:12px;align-self:center">→</span>
+          <input class="res-date-inp" type="date" id="res-date-to" oninput="renderResumo()">
+        </div>
+      </div>
+      <div class="res-period-row">
+        <button class="res-period-btn active" id="rp-today" onclick="setResPeriod('today')">Hoje</button>
+        <button class="res-period-btn" id="rp-week" onclick="setResPeriod('week')">Esta semana</button>
+        <button class="res-period-btn" id="rp-month" onclick="setResPeriod('month')">Este mês</button>
+        <button class="res-period-btn" id="rp-custom" onclick="setResPeriod('custom')">Personalizado</button>
+      </div>
+    </div>
+    <div class="pane-scroll">
+      <div class="res-body" id="res-body">
+        <div class="res-empty">📊 Carregando resumo...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ CLIENTES ═══ -->
+  <div class="pane" id="pane-clientes">
+    <div class="pane-scroll">
+      <div class="cli-section-title">👤 Novo Cliente</div>
+      <div class="cli-form-card">
+        <div class="cli-row2">
+          <div class="cf"><label>Nome completo</label><input id="cli-nome" type="text" placeholder="Ex: Maria Silva" oninput="updateCliPreview()"></div>
+          <div class="cf"><label>Telefone / WhatsApp</label><input id="cli-tel" type="tel" inputmode="numeric" placeholder="(27) 99999-9999" oninput="maskTel(this);updateCliPreview()"></div>
+        </div>
+        <div class="cli-row2">
+          <div class="cf"><label>Data de Nascimento</label><input id="cli-nascimento" type="date" oninput="updateCliPreview();calcIdadeDisplay()" max=""><span id="cli-idade-display" style="display:none;font-size:12px;color:var(--text3);margin-top:4px"></span></div>
+          <div class="cf"><label>Endereço</label><input id="cli-end" type="text" placeholder="Rua, número, bairro..." oninput="updateCliPreview()"></div>
+        </div>
+        <button class="cli-save-btn" onclick="salvarCliente()">✅ Salvar Cliente</button>
+      </div>
+      <div class="cli-section-title" style="margin-top:14px">📋 Clientes Cadastrados <span id="cli-count" style="font-size:11px;color:var(--silver);font-weight:600"></span></div>
+      <div class="cli-filter-row">
+        <button class="cli-filter-btn active" id="clf-az" onclick="setCliSort('az')">A→Z</button>
+        <button class="cli-filter-btn" id="clf-za" onclick="setCliSort('za')">Z→A</button>
+        <button class="cli-filter-btn" id="clf-young" onclick="setCliSort('young')">Mais jovem</button>
+        <button class="cli-filter-btn" id="clf-old" onclick="setCliSort('old')">Mais velho</button>
+        <button class="cli-filter-btn" id="clf-new" onclick="setCliSort('new')">Mais recente</button>
+      </div>
+      <div id="cli-list-wrap"></div>
+      <div class="cli-share-wrap">
+        <button class="cli-share-btn" onclick="compartilharClientes()">💬 Compartilhar Lista via WhatsApp</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ CAD PRODUTO ═══ -->
+  <div class="pane" id="pane-cad">
+    <div class="pane-scroll">
+      <div class="cad-body">
+        <div class="cad-card">
+          <div class="cad-card-title">Novo Produto <span class="cod-badge" id="next-cod">COD #001</span></div>
+          <div class="cf"><label>Nome da peça</label><input id="c-nome" type="text" placeholder="Ex: Camiseta Básica" oninput="updatePreview()"></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <div class="cf"><label>Valor (R$)</label><input id="c-valor" type="number" inputmode="decimal" placeholder="0,00" step="0.01" oninput="updatePreview()"></div>
+            <div class="cf"><label>Comissão (%)</label><input id="c-com" type="number" placeholder="15" value="15" oninput="updatePreview()"></div>
+          </div>
+          <div class="cad-preview" id="cad-preview">
+            <div class="cp-title">Preview</div>
+            <div class="cp-row"><span class="cp-lbl">Preço de venda:</span><span class="cp-val" id="pv-v">—</span></div>
+            <div class="cp-row"><span class="cp-lbl">Comissão:</span><span class="cp-val" id="pv-c">—</span></div>
+            <div class="cp-disc-row">
+              <label>Simular desconto:</label>
+              <input id="pv-disc" type="number" min="0" max="100" placeholder="0" oninput="updatePreview()">
+              <span>%</span>
+            </div>
+            <div class="cp-row" id="pv-drow" style="display:none"><span class="cp-lbl">Com desconto:</span><span class="cp-disc-val" id="pv-dv">—</span></div>
+            <div class="cp-row" id="pv-crow" style="display:none"><span class="cp-lbl">Comissão c/desc:</span><span class="cp-disc-com" id="pv-dc">—</span></div>
+          </div>
+        </div>
+        <div class="cad-card">
+          <div class="cad-card-title">Fotos do produto <span class="cod-badge">até 3</span></div>
+          <div class="foto-slots" id="c-foto-slots"></div>
+          <input type="file" accept="image/*" id="c-foto-input" style="display:none">
+        </div>
+        <div class="cad-card">
+          <div class="cad-card-title">Tipo de estoque</div>
+          <div class="tipo-toggle">
+            <button class="tipo-btn active" id="tipo-tam" onclick="setTipo('tamanhos')">📏 Com tamanhos</button>
+            <button class="tipo-btn" id="tipo-uni" onclick="setTipo('unico')">📦 Tamanho único</button>
+          </div>
+          <div id="bloco-tamanhos">
+            <div class="sz-grid">
+              <div class="sz-wrap"><label>PP</label><input id="c-pp" type="number" inputmode="numeric" placeholder="0" min="0" value="0"></div>
+              <div class="sz-wrap"><label>P</label><input id="c-p" type="number" inputmode="numeric" placeholder="0" min="0" value="0"></div>
+              <div class="sz-wrap"><label>M</label><input id="c-m" type="number" inputmode="numeric" placeholder="0" min="0" value="0"></div>
+              <div class="sz-wrap"><label>G</label><input id="c-g" type="number" inputmode="numeric" placeholder="0" min="0" value="0"></div>
+              <div class="sz-wrap"><label>GG</label><input id="c-gg" type="number" inputmode="numeric" placeholder="0" min="0" value="0"></div>
+              <div class="sz-wrap"><label>G1+</label><input id="c-gp" type="number" inputmode="numeric" placeholder="0" min="0" value="0"></div>
+            </div>
+          </div>
+          <div id="bloco-unico" style="display:none">
+            <div class="uni-stock">
+              <label>Quantidade em estoque:</label>
+              <input id="c-uni" type="number" inputmode="numeric" placeholder="0" min="0" value="0">
+            </div>
+          </div>
+        </div>
+        <button class="btn-cad" onclick="cadastrar();playClick()">✅ CADASTRAR PRODUTO</button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /content -->
+
+<!-- ═══ EDIT OVERLAY ═══ -->
+<div class="overlay" id="edit-ov">
+  <div class="sheet">
+    <div class="sh-handle"></div>
+    <div class="sh-title" id="edit-title">✏️ Editar Produto</div>
+    <div class="sh-field"><span class="sh-label">Nome</span><input class="sh-input" id="e-nome" type="text"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+      <div><span class="sh-label">Valor (R$)</span><input class="sh-input" id="e-valor" type="number" step="0.01"></div>
+      <div><span class="sh-label">Comissão (%)</span><input class="sh-input" id="e-com" type="number" value="15"></div>
+    </div>
+    <div class="sh-field">
+      <span class="sh-label">Fotos do produto (até 3)</span>
+      <div class="foto-slots" id="e-foto-slots"></div>
+      <input type="file" accept="image/*" id="e-foto-input" style="display:none">
+    </div>
+    <div style="margin-bottom:10px">
+      <span class="sh-label">Tipo de estoque</span>
+      <div class="tipo-toggle" style="margin-top:4px">
+        <button class="tipo-btn active" id="e-tipo-tam" onclick="setEditTipo('tamanhos')">📏 Com tamanhos</button>
+        <button class="tipo-btn" id="e-tipo-uni" onclick="setEditTipo('unico')">📦 Tamanho único</button>
+      </div>
+    </div>
+    <div id="e-bloco-tamanhos">
+      <span class="sh-label">Estoque</span>
+      <div class="sh-sz-grid">
+        <div class="sh-sz-w"><label>PP</label><input class="sh-input" id="e-pp" type="number" min="0"></div>
+        <div class="sh-sz-w"><label>P</label><input class="sh-input" id="e-p" type="number" min="0"></div>
+        <div class="sh-sz-w"><label>M</label><input class="sh-input" id="e-m" type="number" min="0"></div>
+        <div class="sh-sz-w"><label>G</label><input class="sh-input" id="e-g" type="number" min="0"></div>
+        <div class="sh-sz-w"><label>GG</label><input class="sh-input" id="e-gg" type="number" min="0"></div>
+        <div class="sh-sz-w"><label>G1+</label><input class="sh-input" id="e-gp" type="number" min="0"></div>
+      </div>
+    </div>
+    <div id="e-bloco-unico" style="display:none">
+      <span class="sh-label">Quantidade</span>
+      <input class="sh-input" id="e-uni" type="number" min="0" placeholder="0" style="margin-top:4px">
+    </div>
+    <button class="sh-btn sh-primary" onclick="salvarEdit();playClick()">💾 Salvar</button>
+    <button class="sh-btn sh-danger" onclick="excluirProd()">🗑️ Excluir produto</button>
+    <button class="sh-btn sh-cancel" onclick="fecharOv('edit-ov')">Cancelar</button>
+  </div>
+</div>
+
+<!-- ═══ HIST OVERLAY ═══ -->
+<div class="overlay" id="hist-ov">
+  <div class="sheet">
+    <div class="sh-handle"></div>
+    <div class="sh-title">📋 Histórico de Vendas</div>
+    <div class="hist-filters">
+      <div class="hist-filter-lbl">Vendedor</div>
+      <select class="hist-seller-select" id="hf-seller" onchange="renderHist()"><option value="">Todos</option></select>
+      <div class="hist-filter-lbl" style="margin-top:8px">Período</div>
+      <div class="hist-filter-row">
+        <button class="hf-btn active" id="hf-all" onclick="setHistPeriod('all')">Tudo</button>
+        <button class="hf-btn" id="hf-today" onclick="setHistPeriod('today')">Hoje</button>
+        <button class="hf-btn" id="hf-week" onclick="setHistPeriod('week')">Semana</button>
+        <button class="hf-btn" id="hf-month" onclick="setHistPeriod('month')">Mês</button>
+        <button class="hf-btn" id="hf-custom" onclick="setHistPeriod('custom')">📅 Datas</button>
+      </div>
+      <div id="hf-custom-dates" style="display:none">
+        <div class="hist-date-row" style="margin-top:6px">
+          <label>De:</label>
+          <input type="date" id="hf-date-from" onchange="renderHist()">
+          <label>Até:</label>
+          <input type="date" id="hf-date-to" onchange="renderHist()">
+        </div>
+      </div>
+    </div>
+    <div class="hist-summary" id="hist-summary" style="display:none">
+      <div class="hs-title">📊 Resumo do período</div>
+      <div class="hs-row"><span class="hs-lbl">Vendas</span><span class="hs-val" id="hs-count">0</span></div>
+      <div class="hs-row"><span class="hs-lbl">Total vendido</span><span class="hs-val" id="hs-total">—</span></div>
+      <div class="hs-row"><span class="hs-lbl">Com desconto</span><span class="hs-val" id="hs-desc">—</span></div>
+      <div class="hs-row"><span class="hs-lbl">Sem desconto</span><span class="hs-val" id="hs-nodesc">—</span></div>
+      <div class="hs-row hs-big"><span class="hs-lbl">💰 Comissão total</span><span class="hs-val" id="hs-com">—</span></div>
+    </div>
+    <div class="hist-actions">
+      <button class="hist-share-btn" onclick="compartilharHistorico()">📤 Compartilhar</button>
+      <button class="hist-clear-btn" onclick="apagarFiltrados()">🗑️ Apagar</button>
+    </div>
+    <div id="hist-list"></div>
+    <button class="sh-btn sh-cancel" onclick="fecharOv('hist-ov')">Fechar</button>
+  </div>
+</div>
+
+<!-- ═══ CONFIG ═══ -->
+<div class="overlay" id="config-ov">
+  <div class="sheet">
+    <div class="sh-handle"></div>
+    <div class="sh-title">⚙️ Seu nome de vendedor</div>
+    <div class="config-box">
+      <label>Nome</label>
+      <input id="cfg-nome" type="text" placeholder="Ex: Jheison">
+      <div class="config-note">Este nome identifica as suas vendas. Cada celular salva o próprio nome.</div>
+    </div>
+    <button class="sh-btn sh-primary" onclick="salvarConfig();playClick()">💾 Salvar</button>
+    <button class="sh-btn sh-cancel" onclick="fecharOv('config-ov')">Cancelar</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<!-- ═══ LIGHTBOX FOTO ═══ -->
+<div class="img-lightbox" id="img-lightbox">
+  <button class="img-lightbox-close" onclick="fecharImagemGrande()">×</button>
+  <button class="img-lightbox-nav prev" id="lightbox-prev" onclick="lightboxNav(-1)">‹</button>
+  <img id="img-lightbox-img" src="">
+  <button class="img-lightbox-nav next" id="lightbox-next" onclick="lightboxNav(1)">›</button>
+  <div class="img-lightbox-counter" id="lightbox-counter"></div>
+  <div class="img-lightbox-actions">
+    <button onclick="lightboxBaixar()">⬇️ Baixar</button>
+    <button onclick="lightboxTrocar()">🔄 Trocar</button>
+    <button onclick="lightboxExcluir()">🗑️ Excluir</button>
+  </div>
+  <input type="file" accept="image/*" id="lightbox-file-input" style="display:none">
+</div>
+
+<!-- ═══ AJUDA ═══ -->
+<div class="overlay" id="ajuda-ov">
+  <div class="sheet ajuda-sheet">
+    <div class="sh-handle"></div>
+    <div class="sh-title">❓ Como o app funciona</div>
+    <div class="ajuda-body">
+
+      <div class="ajuda-sec">
+        <div class="ajuda-sec-title">🏠 Tela inicial</div>
+        <p>É a tela com os botões grandes. Toque em qualquer botão para ir para aquela parte do app. Toque na logo "Cee Jay" no topo para sempre voltar para essa tela.</p>
+      </div>
+
+      <div class="ajuda-sec">
+        <div class="ajuda-sec-title">👔 Produtos</div>
+        <p>Aqui você vê todas as peças cadastradas. Toque em cima de um produto para abrir e ver mais detalhes, como o estoque e as fotos.</p>
+        <p>Dentro do produto você pode:</p>
+        <ul>
+          <li>👁️ Tocar em uma foto para vê-la em tela cheia</li>
+          <li>➕ Adicionar uma foto nova (até 3 por produto)</li>
+          <li>🔄 Trocar uma foto por outra</li>
+          <li>🗑️ Excluir uma foto</li>
+          <li>⬇️ Baixar a foto no celular (com a mesma qualidade)</li>
+          <li>✏️ Editar o produto (nome, preço, comissão, estoque)</li>
+          <li>🗑️ Excluir o produto inteiro</li>
+        </ul>
+        <p>Use a busca no topo para achar um produto pelo nome ou número. Os avisos ⚠️ em vermelho ou amarelo mostram quando o estoque está negativo ou quase acabando.</p>
+      </div>
+
+      <div class="ajuda-sec">
+        <div class="ajuda-sec-title">💰 Venda</div>
+        <p>É onde você registra uma venda. Toque em "Adicionar produto", digite o código ou nome da peça, escolha o tamanho (se tiver) e a quantidade.</p>
+        <p>Se quiser, você pode vincular um cliente já cadastrado à venda. Também dá para colocar um desconto em porcentagem.</p>
+        <p>No final da tela aparece o total, a comissão e o valor líquido. Toque em "REGISTRAR VENDA" para finalizar. O app avisa se o estoque daquele produto já estiver zerado, e pergunta se você quer continuar mesmo assim.</p>
+        <p>Toque em "Histórico de vendas" para ver, filtrar ou apagar vendas já feitas.</p>
+      </div>
+
+      <div class="ajuda-sec">
+        <div class="ajuda-sec-title">⭐ Tarefas do Dia</div>
+        <p>Uma lista de missões do dia a dia da loja (postar Stories, cadastrar clientes, etc). Cada tarefa concluída dá um bônus em dinheiro. Marque como feita tocando na tarefa. No final você vê o total de bônus ganho no dia.</p>
+      </div>
+
+      <div class="ajuda-sec">
+        <div class="ajuda-sec-title">📊 Resumo do Dia</div>
+        <p>Mostra um resumo financeiro do período escolhido: quanto entrou na loja, quanto foi de comissão, quanto sobrou de líquido, quais peças mais venderam e quantas tarefas foram concluídas.</p>
+        <p>Você pode escolher o período (hoje, semana, mês ou datas personalizadas) e compartilhar esse resumo pelo WhatsApp.</p>
+      </div>
+
+      <div class="ajuda-sec">
+        <div class="ajuda-sec-title">👥 Clientes</div>
+        <p>Cadastre os clientes da loja com nome, telefone, data de nascimento e endereço. Na lista dá para ordenar por nome, idade ou data de cadastro, e compartilhar a lista toda pelo WhatsApp.</p>
+      </div>
+
+      <div class="ajuda-sec">
+        <div class="ajuda-sec-title">➕ Cadastro de Produto</div>
+        <p>É onde você cria uma peça nova: nome, preço, comissão, tipo de estoque (com tamanhos ou tamanho único) e quantidade. Você também pode adicionar até 3 fotos da peça, tirando na hora ou escolhendo da galeria do celular.</p>
+      </div>
+
+      <div class="ajuda-sec">
+        <div class="ajuda-sec-title">⚙️ Seu nome de vendedor</div>
+        <p>Toque na engrenagem na aba Venda para definir seu nome. Esse nome fica salvo só nesse celular, e é usado para saber quem fez cada venda.</p>
+      </div>
+
+      <div class="ajuda-sec">
+        <div class="ajuda-sec-title">🔵 Bolinha no topo da tela</div>
+        <p>Ela mostra se o app está conectado à internet: verde é online, vermelho é offline, e piscando é sincronizando os dados.</p>
+      </div>
+
+      <div class="ajuda-sec">
+        <div class="ajuda-sec-title">❓ Este botão de ajuda</div>
+        <p>Ele fica sempre disponível no canto de cima. Toque nele a qualquer momento que tiver dúvida sobre alguma função do app.</p>
+      </div>
+
+    </div>
+    <button class="sh-btn sh-cancel" onclick="fecharOv('ajuda-ov')">Fechar</button>
+  </div>
+</div>
+
+<!-- sons: script normal (não ES6 module) -->
+<script src="sounds.js"></script>
+
+<!-- lógica principal: ES6 module com Firebase -->
+<script type="module" src="main.js"></script>
+
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./service-worker.js')
+      .then(reg => reg.update())
+      .catch(err => console.log('SW erro:', err));
+  });
+}
+window.addEventListener('online', ()=>window.dispatchEvent(new Event('sync-pending')));
+</script>
+
+</body>
+</html>
